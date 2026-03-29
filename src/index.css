@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+/* ── Light theme (default) ── */
+:root {
+  --bg: #f5f7f5;
+  --surface: #ffffff;
+  --surface-2: #f0f4f0;
+  --border: #e2e8e2;
+  --primary: #2d6a2d;
+  --primary-light: #4ade80;
+  --primary-dim: rgba(45,106,45,0.1);
+  --text: #111811;
+  --muted: #6b7a6b;
+  --muted-2: #9aaa9a;
+  --danger: #dc2626;
+  --danger-dim: rgba(220,38,38,0.08);
+  --warning: #d97706;
+  --warning-dim: rgba(217,119,6,0.08);
+  --success: #16a34a;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* ── Dark theme ── */
+[data-theme="dark"] {
+  --bg: #0a0f0a;
+  --surface: #111811;
+  --surface-2: #1a241a;
+  --border: #1e2d1e;
+  --primary: #4ade80;
+  --primary-light: #86efac;
+  --primary-dim: rgba(74,222,128,0.08);
+  --text: #f0fdf0;
+  --muted: #6b7280;
+  --muted-2: #4b5563;
+  --danger: #f87171;
+  --danger-dim: rgba(248,113,113,0.08);
+  --warning: #fbbf24;
+  --warning-dim: rgba(251,191,36,0.08);
+  --success: #4ade80;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(74,222,128,0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(74,222,128,0);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
