@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ThemeToggle } from '../../components/ui/ThemeToggle'
 import logo from '../../assets/logo.png'
 
@@ -19,6 +20,8 @@ const Register = () => {
   const navigate = useNavigate()
   const { register } = useAuth()
   const { t } = useTranslation()
+
+  const { isMobile } = useBreakpoint()
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
@@ -120,22 +123,24 @@ const Register = () => {
         background: 'var(--bg)',
         display: 'flex',
         justifyContent: 'center',
-        paddingTop: '60px',
-        paddingBottom: '60px',
-        paddingLeft: '16px',
-        paddingRight: '16px',
+        alignItems: isMobile ? 'flex-start' : undefined,
+        paddingTop: isMobile ? '0' : '60px',
+        paddingBottom: isMobile ? '0' : '60px',
+        paddingLeft: isMobile ? '0' : '16px',
+        paddingRight: isMobile ? '0' : '16px',
         boxSizing: 'border-box',
       }}>
         <div style={{
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: isMobile ? '100%' : '420px',
           animation: 'fadeUp 0.35s ease forwards',
         }}>
           <div style={{
             background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            padding: '40px',
+            border: isMobile ? 'none' : '1px solid var(--border)',
+            borderRadius: isMobile ? '0' : '16px',
+            padding: isMobile ? '32px 24px' : '40px',
+            minHeight: isMobile ? '100vh' : 'auto',
             boxSizing: 'border-box',
           }}>
 
@@ -313,7 +318,7 @@ const Register = () => {
                   onChange={e => setRegion(e.target.value)}
                   onFocus={() => setFocus('region', true)}
                   onBlur={() => setFocus('region', false)}
-                  placeholder="e.g. Punjab, Nepal"
+                  placeholder="e.g. Kathmandu, Nepal"
                   style={inputStyle('region')}
                 />
               </div>

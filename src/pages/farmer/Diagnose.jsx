@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Camera, Upload, Smartphone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import client from '../../api/client'
 
 const STEPS = [
@@ -46,6 +47,7 @@ const Diagnose = () => {
   const navigate = useNavigate()
   const { user, updateLanguage } = useAuth()
   const { t } = useTranslation()
+  const { isMobile } = useBreakpoint()
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
 
@@ -167,13 +169,9 @@ const Diagnose = () => {
         .diagnose-btn:hover:not(:disabled) { opacity: 0.88 !important; }
         .remove-btn:hover { opacity: 1 !important; }
         .upload-choice-btn:hover { border-color: var(--primary) !important; color: var(--primary) !important; }
-        @media (max-width: 768px) {
-          .diagnose-layout { flex-direction: column !important; }
-          .diagnose-sidebar { width: 100% !important; }
-        }
       `}</style>
 
-      <div className="diagnose-layout" style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '24px', alignItems: 'flex-start' }}>
 
         {/* ── LEFT: Upload ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -343,7 +341,7 @@ const Diagnose = () => {
                   style={{
                     border: `2px dashed ${dragOver ? 'var(--primary)' : 'var(--border)'}`,
                     borderRadius: '10px',
-                    height: '200px',
+                    height: isMobile ? '180px' : '200px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -566,7 +564,7 @@ const Diagnose = () => {
         </div>
 
         {/* ── RIGHT: Stats + Crops ── */}
-        <div className="diagnose-sidebar" style={{ width: '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ width: isMobile ? '100%' : '320px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Quick Stats */}
           <div style={{

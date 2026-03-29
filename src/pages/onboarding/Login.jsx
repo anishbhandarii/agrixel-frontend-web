@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ThemeToggle } from '../../components/ui/ThemeToggle'
 import logo from '../../assets/logo.png'
 
@@ -9,6 +10,8 @@ const Login = () => {
   const navigate = useNavigate()
   const { login } = useAuth()
   const { t } = useTranslation()
+
+  const { isMobile } = useBreakpoint()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -73,24 +76,26 @@ const Login = () => {
         background: 'var(--bg)',
         display: 'flex',
         justifyContent: 'center',
-        paddingTop: '80px',
-        paddingBottom: '40px',
-        paddingLeft: '16px',
-        paddingRight: '16px',
+        alignItems: isMobile ? 'flex-start' : undefined,
+        paddingTop: isMobile ? '0' : '80px',
+        paddingBottom: isMobile ? '0' : '40px',
+        paddingLeft: isMobile ? '0' : '16px',
+        paddingRight: isMobile ? '0' : '16px',
         boxSizing: 'border-box',
       }}>
         <div style={{
           width: '100%',
-          maxWidth: '420px',
+          maxWidth: isMobile ? '100%' : '420px',
           animation: 'fadeUp 0.35s ease forwards',
         }}>
 
           {/* Card */}
           <div style={{
             background: 'var(--surface)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            padding: '40px',
+            border: isMobile ? 'none' : '1px solid var(--border)',
+            borderRadius: isMobile ? '0' : '16px',
+            padding: isMobile ? '32px 24px' : '40px',
+            minHeight: isMobile ? '100vh' : 'auto',
             boxSizing: 'border-box',
           }}>
 

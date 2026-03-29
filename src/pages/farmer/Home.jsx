@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Activity, CheckCircle2, Target, AlertTriangle, Microscope } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import client from '../../api/client'
 import PlantImage from '../../components/ui/PlantImage'
 import { getDisplayNames, getHealthScore, getScoreColor } from '../../utils/healthScore'
@@ -51,13 +52,13 @@ const urgencyBorder = (urgency) => {
 }
 
 // ── Stat card ────────────────────────────────────────────────────────────────
-const StatCard = ({ value, label, sub, valueColor, danger, borderColor, icon: Icon, iconColor }) => (
+const StatCard = ({ value, label, sub, valueColor, danger, borderColor, icon: Icon, iconColor, isMobile }) => (
   <div style={{
     background: 'var(--surface)',
     border: `1px solid ${danger ? 'rgba(248,113,113,0.3)' : 'var(--border)'}`,
     borderLeft: `3px solid ${borderColor || 'var(--border)'}`,
     borderRadius: '12px',
-    padding: '20px',
+    padding: isMobile ? '16px' : '20px',
     flex: 1,
     minWidth: 0,
     position: 'relative',
@@ -69,7 +70,7 @@ const StatCard = ({ value, label, sub, valueColor, danger, borderColor, icon: Ic
     )}
     <div style={{
       fontFamily: 'Syne, sans-serif',
-      fontSize: '30px',
+      fontSize: isMobile ? '24px' : '30px',
       fontWeight: 700,
       color: valueColor || 'var(--text)',
       lineHeight: 1,
@@ -91,6 +92,7 @@ const StatCard = ({ value, label, sub, valueColor, danger, borderColor, icon: Ic
 const Home = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { isMobile } = useBreakpoint()
 
   const [stats, setStats]     = useState(null)
   const [history, setHistory] = useState([])
@@ -191,7 +193,12 @@ const Home = () => {
       </div>
 
       {/* ── Stat Cards ── */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)',
+        gap: '12px',
+        marginBottom: '24px',
+      }}>
         <StatCard
           value={total}
           label="Total Scans"
@@ -200,6 +207,7 @@ const Home = () => {
           borderColor="var(--primary)"
           icon={Activity}
           iconColor="var(--primary)"
+          isMobile={isMobile}
         />
         <StatCard
           value={healthy}
@@ -209,6 +217,7 @@ const Home = () => {
           borderColor="#16a34a"
           icon={CheckCircle2}
           iconColor="#16a34a"
+          isMobile={isMobile}
         />
         <StatCard
           value={`${avgConf}%`}
@@ -217,6 +226,7 @@ const Home = () => {
           borderColor="var(--primary)"
           icon={Target}
           iconColor="var(--primary)"
+          isMobile={isMobile}
         />
         <StatCard
           value={highRisk}
@@ -227,6 +237,7 @@ const Home = () => {
           danger={highRisk > 0}
           icon={AlertTriangle}
           iconColor={highRisk > 0 ? 'var(--danger)' : 'var(--muted)'}
+          isMobile={isMobile}
         />
         {avgRating !== null && ratedCount > 0 && (
           <StatCard
@@ -235,12 +246,13 @@ const Home = () => {
             sub={`from ${ratedCount} rating${ratedCount === 1 ? '' : 's'}`}
             valueColor="#fbbf24"
             borderColor="#fbbf24"
+            isMobile={isMobile}
           />
         )}
       </div>
 
       {/* ── Two column layout ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr', gap: '16px', marginBottom: '24px' }}>
 
         {/* LEFT — Recent Scans */}
         <div style={{

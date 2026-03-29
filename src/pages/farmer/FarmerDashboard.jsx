@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { Home, Microscope, History, TrendingUp, LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ThemeToggle } from '../../components/ui/ThemeToggle'
 import { PageTransition } from '../../components/ui/PageTransition'
 import logo from '../../assets/logo.png'
@@ -24,6 +25,13 @@ const NAV_ITEMS = [
   { labelKey: 'plant_tracker',  icon: TrendingUp, path: '/farmer/tracker' },
 ]
 
+const BOTTOM_NAV = [
+  { label: 'Home',     icon: Home,       path: '/farmer/home' },
+  { label: 'Diagnose', icon: Microscope, path: '/farmer/diagnose' },
+  { label: 'History',  icon: History,    path: '/farmer/history' },
+  { label: 'Tracker',  icon: TrendingUp, path: '/farmer/tracker' },
+]
+
 const PAGE_TITLE_KEYS = {
   '/farmer/home':     'home',
   '/farmer/diagnose': 'diagnose_plant',
@@ -37,6 +45,7 @@ const FarmerDashboard = () => {
   const location = useLocation()
   const { user, logout, updateLanguage } = useAuth()
   const { t } = useTranslation()
+  const { isMobile } = useBreakpoint()
 
   const [logoutHover, setLogoutHover] = useState(false)
   const [navHover, setNavHover] = useState(null)
@@ -47,6 +56,117 @@ const FarmerDashboard = () => {
 
   const handleLangChange = (e) => {
     updateLanguage(e.target.value)
+  }
+
+  if (isMobile) {
+    return (
+      <>
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+          ::-webkit-scrollbar { width: 4px; }
+          ::-webkit-scrollbar-track { background: var(--bg); }
+          ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        `}</style>
+
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg)' }}>
+
+          {/* Mobile top bar */}
+          <div style={{
+            height: '52px',
+            padding: '0 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid var(--border)',
+            background: 'var(--bg)',
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            flexShrink: 0,
+          }}>
+            <img
+              src={logo}
+              alt="Agrixel"
+              onClick={() => navigate('/farmer/home')}
+              style={{ height: '28px', width: 'auto', objectFit: 'contain', cursor: 'pointer' }}
+            />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ThemeToggle />
+              <select
+                value={currentLang}
+                onChange={handleLangChange}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--border)',
+                  color: 'var(--muted)',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  fontFamily: 'Inter, sans-serif',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                {LANGUAGES.map(l => (
+                  <option key={l.code} value={l.code} style={{ background: 'var(--surface)', color: 'var(--text)' }}>
+                    {l.flag} {l.short}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Page content */}
+          <div style={{ flex: 1, padding: '20px 16px', paddingBottom: '80px', overflowY: 'auto' }}>
+            <PageTransition>
+              <Outlet />
+            </PageTransition>
+          </div>
+
+          {/* Bottom navigation bar */}
+          <div style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '64px',
+            background: 'var(--surface)',
+            borderTop: '1px solid var(--border)',
+            display: 'flex',
+            zIndex: 100,
+          }}>
+            {BOTTOM_NAV.map((item) => {
+              const Icon = item.icon
+              const isActive = location.pathname === item.path ||
+                (item.path === '/farmer/home' && location.pathname === '/farmer')
+              return (
+                <div
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    cursor: 'pointer',
+                    color: isActive ? 'var(--primary)' : 'var(--muted)',
+                    userSelect: 'none',
+                    transition: 'color 0.15s ease',
+                  }}
+                >
+                  <Icon size={20} />
+                  <span style={{ fontSize: '10px', fontFamily: 'Inter, sans-serif', letterSpacing: '0.02em' }}>
+                    {item.label}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (

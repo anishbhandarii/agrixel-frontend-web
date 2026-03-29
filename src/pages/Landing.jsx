@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { ThemeToggle } from '../components/ui/ThemeToggle'
 import { useTheme } from '../context/ThemeContext'
 import { useState, useEffect, useRef } from 'react'
+import { useBreakpoint } from '../hooks/useBreakpoint'
 import logo from '../assets/logo-notext.png'
 import demo from '../assets/demo.png'
 
@@ -41,10 +42,12 @@ const Landing = () => {
   const navigate = useNavigate()
   const { isAuthenticated, user } = useAuth()
   const { theme } = useTheme()
+  const { isMobile, isTablet } = useBreakpoint()
   const [cropHover, setCropHover] = useState(null)
   const [featureHover, setFeatureHover] = useState(null)
   const [stepHover, setStepHover] = useState(null)
   const [navBtnHover, setNavBtnHover] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const featuresRef = useRef(null)
   const howRef = useRef(null)
   const cropsRef = useRef(null)
@@ -52,6 +55,7 @@ const Landing = () => {
   const dashboard = user?.role === 'admin' ? '/admin/overview' : '/farmer/home'
 
   const scrollTo = (ref) => {
+    setMobileMenuOpen(false)
     ref.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -59,7 +63,6 @@ const Landing = () => {
     ? 'rgba(10,15,10,0.85)'
     : 'rgba(245,247,245,0.85)'
 
-  // Shared section label style
   const sLabel = {
     fontSize: '11px',
     color: 'var(--primary)',
@@ -72,12 +75,15 @@ const Landing = () => {
 
   const sTitle = {
     fontFamily: 'Syne, sans-serif',
-    fontSize: '40px',
+    fontSize: isMobile ? '28px' : '40px',
     fontWeight: 700,
     color: 'var(--text)',
     lineHeight: 1.15,
     margin: '0 auto 60px',
   }
+
+  const stepsColumns = isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(4, 1fr)'
+  const featuresColumns = isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(3, 1fr)'
 
   return (
     <>
@@ -119,7 +125,7 @@ const Landing = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 max(24px, calc((100vw - 1100px) / 2))',
+          padding: isMobile ? '0 16px' : '0 max(24px, calc((100vw - 1100px) / 2))',
         }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -129,36 +135,57 @@ const Landing = () => {
             </span>
           </div>
 
-          {/* Center nav links */}
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-            {[
-              { label: 'Features',        ref: featuresRef },
-              { label: 'How it Works',    ref: howRef },
-              { label: 'Supported Crops', ref: cropsRef },
-            ].map(({ label, ref }) => (
-              <span
-                key={label}
-                onClick={() => scrollTo(ref)}
-                style={{
-                  fontSize: '14px',
-                  color: navBtnHover === label ? 'var(--text)' : 'var(--muted)',
-                  cursor: 'pointer',
-                  fontFamily: 'Inter, sans-serif',
-                  transition: 'color 0.15s',
-                  userSelect: 'none',
-                }}
-                onMouseEnter={() => setNavBtnHover(label)}
-                onMouseLeave={() => setNavBtnHover(null)}
-              >
-                {label}
-              </span>
-            ))}
-          </div>
+          {/* Center nav links — desktop only */}
+          {!isMobile && (
+            <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
+              {[
+                { label: 'Features',        ref: featuresRef },
+                { label: 'How it Works',    ref: howRef },
+                { label: 'Supported Crops', ref: cropsRef },
+              ].map(({ label, ref }) => (
+                <span
+                  key={label}
+                  onClick={() => scrollTo(ref)}
+                  style={{
+                    fontSize: '14px',
+                    color: navBtnHover === label ? 'var(--text)' : 'var(--muted)',
+                    cursor: 'pointer',
+                    fontFamily: 'Inter, sans-serif',
+                    transition: 'color 0.15s',
+                    userSelect: 'none',
+                  }}
+                  onMouseEnter={() => setNavBtnHover(label)}
+                  onMouseLeave={() => setNavBtnHover(null)}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Right actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <ThemeToggle />
-            {isAuthenticated ? (
+            {/* Mobile: hamburger */}
+            {isMobile ? (
+              <button
+                onClick={() => setMobileMenuOpen(o => !o)}
+                style={{
+                  background: 'none',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                }}
+              >
+                {[0,1,2].map(i => (
+                  <div key={i} style={{ width: '18px', height: '2px', background: 'var(--text)', borderRadius: '1px' }} />
+                ))}
+              </button>
+            ) : isAuthenticated ? (
               <button
                 onClick={() => navigate(dashboard)}
                 style={{
@@ -210,6 +237,84 @@ const Landing = () => {
           </div>
         </nav>
 
+        {/* Mobile menu dropdown */}
+        {isMobile && mobileMenuOpen && (
+          <div style={{
+            position: 'fixed',
+            top: '64px',
+            left: 0,
+            right: 0,
+            background: 'var(--surface)',
+            borderBottom: '1px solid var(--border)',
+            padding: '16px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            zIndex: 99,
+          }}>
+            {[
+              { label: 'Features',        ref: featuresRef },
+              { label: 'How it Works',    ref: howRef },
+              { label: 'Supported Crops', ref: cropsRef },
+            ].map(({ label, ref }) => (
+              <div
+                key={label}
+                onClick={() => scrollTo(ref)}
+                style={{
+                  padding: '12px 0',
+                  fontSize: '15px',
+                  color: 'var(--text)',
+                  fontFamily: 'Inter, sans-serif',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid var(--border)',
+                }}
+              >
+                {label}
+              </div>
+            ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => { setMobileMenuOpen(false); navigate(dashboard) }}
+                  style={{
+                    height: '44px', background: 'var(--primary)', color: '#0a0f0a',
+                    border: 'none', borderRadius: '8px',
+                    fontFamily: 'Syne, sans-serif', fontSize: '14px', fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Go to Dashboard →
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); navigate('/login') }}
+                    style={{
+                      height: '44px', background: 'transparent',
+                      border: '1px solid var(--border)', borderRadius: '8px',
+                      color: 'var(--text)', fontSize: '14px',
+                      fontFamily: 'Inter, sans-serif', cursor: 'pointer',
+                    }}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); navigate('/register') }}
+                    style={{
+                      height: '44px', background: 'var(--primary)', color: '#0a0f0a',
+                      border: 'none', borderRadius: '8px',
+                      fontFamily: 'Syne, sans-serif', fontSize: '14px', fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ── HERO ── */}
         <section style={{
           minHeight: '90vh',
@@ -218,7 +323,7 @@ const Landing = () => {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '80px 24px',
+          padding: isMobile ? '80px 20px 48px' : '120px 24px 80px',
           position: 'relative',
           overflow: 'hidden',
         }}>
@@ -233,7 +338,7 @@ const Landing = () => {
             zIndex: 0,
           }} />
 
-          <div style={{ position: 'relative', zIndex: 1, animation: 'fadeUp 0.7s ease forwards' }}>
+          <div style={{ position: 'relative', zIndex: 1, animation: 'fadeUp 0.7s ease forwards', width: '100%' }}>
             {/* Badge */}
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -255,7 +360,7 @@ const Landing = () => {
             {/* Headline */}
             <h1 style={{
               fontFamily: 'Syne, sans-serif',
-              fontSize: 'clamp(40px, 6vw, 72px)',
+              fontSize: `clamp(28px, 7vw, 72px)`,
               fontWeight: 800,
               lineHeight: 1.05,
               color: 'var(--text)',
@@ -275,7 +380,7 @@ const Landing = () => {
 
             {/* Subtitle */}
             <p style={{
-              fontSize: 'clamp(16px, 2vw, 20px)',
+              fontSize: isMobile ? '15px' : '18px',
               fontWeight: 300,
               color: 'var(--muted)',
               maxWidth: '560px',
@@ -288,11 +393,20 @@ const Landing = () => {
             </p>
 
             {/* CTA buttons */}
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              gap: '16px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: isMobile ? '100%' : 'auto',
+            }}>
               <button
                 onClick={() => navigate('/register')}
                 style={{
-                  height: '52px', padding: '0 28px',
+                  height: '52px',
+                  padding: '0 28px',
+                  width: isMobile ? '100%' : 'auto',
                   background: 'var(--primary)', color: '#0a0f0a',
                   border: 'none', borderRadius: '10px',
                   fontFamily: 'Syne, sans-serif', fontSize: '16px', fontWeight: 700,
@@ -308,7 +422,9 @@ const Landing = () => {
               <button
                 onClick={() => scrollTo(howRef)}
                 style={{
-                  height: '52px', padding: '0 28px',
+                  height: '52px',
+                  padding: '0 28px',
+                  width: isMobile ? '100%' : 'auto',
                   background: 'transparent',
                   border: '1px solid var(--border)',
                   borderRadius: '10px', color: 'var(--text)',
@@ -326,7 +442,7 @@ const Landing = () => {
             <div style={{
               marginTop: '64px',
               display: 'flex',
-              gap: '48px',
+              gap: isMobile ? '24px' : '48px',
               justifyContent: 'center',
               flexWrap: 'wrap',
               paddingTop: '40px',
@@ -338,70 +454,70 @@ const Landing = () => {
                 { num: '7',     label: 'Languages Supported' },
               ].map(({ num, label }) => (
                 <div key={label} style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '32px', fontWeight: 700, color: 'var(--primary)', lineHeight: 1 }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: isMobile ? '22px' : '32px', fontWeight: 700, color: 'var(--primary)', lineHeight: 1 }}>
                     {num}
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px', fontFamily: 'Inter, sans-serif' }}>
+                  <div style={{ fontSize: isMobile ? '11px' : '13px', color: 'var(--muted)', marginTop: '4px', fontFamily: 'Inter, sans-serif' }}>
                     {label}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Hero mockup */}
-            <div style={{
-              maxWidth: '800px',
-              margin: '64px auto 0',
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
-              animation: 'float 6s ease-in-out infinite',
-              textAlign: 'left',
-            }}>
-              {/* Mock browser bar */}
+            {/* Hero mockup — hidden on mobile */}
+            {!isMobile && (
               <div style={{
-                height: '40px',
-                background: 'var(--surface-2)',
-                borderBottom: '1px solid var(--border)',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '0 16px',
-                gap: '8px',
+                maxWidth: isTablet ? '500px' : '800px',
+                margin: '64px auto 0',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
+                animation: 'float 6s ease-in-out infinite',
+                textAlign: 'left',
               }}>
-                {['#ef4444','#fbbf24','#4ade80'].map(c => (
-                  <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.8 }} />
-                ))}
+                {/* Mock browser bar */}
                 <div style={{
-                  flex: 1, height: '24px', background: 'var(--bg)',
-                  borderRadius: '4px', margin: '0 16px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  height: '40px',
+                  background: 'var(--surface-2)',
+                  borderBottom: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '0 16px',
+                  gap: '8px',
                 }}>
-                  <span style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'Inter, sans-serif' }}>
-                    agrixel.app/farmer/result
-                  </span>
+                  {['#ef4444','#fbbf24','#4ade80'].map(c => (
+                    <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, opacity: 0.8 }} />
+                  ))}
+                  <div style={{
+                    flex: 1, height: '24px', background: 'var(--bg)',
+                    borderRadius: '4px', margin: '0 16px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <span style={{ fontSize: '11px', color: 'var(--muted)', fontFamily: 'Inter, sans-serif' }}>
+                      agrixel.app/farmer/result
+                    </span>
+                  </div>
                 </div>
+                <img
+                  src={demo}
+                  alt="AgriXel result page demo"
+                  style={{ width: '100%', display: 'block' }}
+                />
               </div>
-
-              {/* Demo screenshot */}
-              <img
-                src={demo}
-                alt="AgriXel result page demo"
-                style={{ width: '100%', display: 'block' }}
-              />
-            </div>
+            )}
           </div>
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section ref={howRef} id="how-it-works" style={{ padding: '100px 24px' }}>
+        <section ref={howRef} id="how-it-works" style={{ padding: isMobile ? '60px 20px' : '100px 24px' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
             <div style={sLabel}>How It Works</div>
             <h2 style={{ ...sTitle, maxWidth: '600px' }}>
               From photo to treatment plan in seconds
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: stepsColumns, gap: '20px' }}>
               {STEPS.map((step, i) => (
                 <div
                   key={i}
@@ -411,7 +527,7 @@ const Landing = () => {
                     background: 'var(--surface)',
                     border: '1px solid var(--border)',
                     borderRadius: '16px',
-                    padding: '32px 24px',
+                    padding: isMobile ? '24px 20px' : '32px 24px',
                     textAlign: 'center',
                     transition: 'transform 0.2s, box-shadow 0.2s',
                     transform: stepHover === i ? 'translateY(-4px)' : 'none',
@@ -443,13 +559,13 @@ const Landing = () => {
         </section>
 
         {/* ── FEATURES ── */}
-        <section ref={featuresRef} id="features" style={{ background: 'var(--surface)', padding: '100px 24px' }}>
+        <section ref={featuresRef} id="features" style={{ background: 'var(--surface)', padding: isMobile ? '60px 20px' : '100px 24px' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
             <div style={sLabel}>Features</div>
             <h2 style={{ ...sTitle, maxWidth: '500px', margin: '0 auto 60px' }}>
               Everything a farmer needs
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', textAlign: 'left' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: featuresColumns, gap: '20px', textAlign: 'left' }}>
               {FEATURES.map((f, i) => (
                 <div
                   key={i}
@@ -484,7 +600,7 @@ const Landing = () => {
         </section>
 
         {/* ── SUPPORTED CROPS ── */}
-        <section ref={cropsRef} id="supported-crops" style={{ padding: '100px 24px' }}>
+        <section ref={cropsRef} id="supported-crops" style={{ padding: isMobile ? '60px 20px' : '100px 24px' }}>
           <div style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center' }}>
             <div style={sLabel}>Supported Crops</div>
             <h2 style={{ ...sTitle, marginBottom: '12px', maxWidth: '600px', margin: '0 auto 12px' }}>
@@ -503,7 +619,7 @@ const Landing = () => {
                     background: 'var(--surface)',
                     border: `1px solid ${cropHover === i ? 'var(--primary)' : 'var(--border)'}`,
                     borderRadius: '12px',
-                    padding: '16px 20px',
+                    padding: isMobile ? '10px 14px' : '16px 20px',
                     display: 'flex', alignItems: 'center', gap: '10px',
                     transition: 'all 0.15s',
                     cursor: 'default',
@@ -536,11 +652,12 @@ const Landing = () => {
           background: 'linear-gradient(135deg, rgba(74,222,128,0.12), rgba(34,197,94,0.06))',
           borderTop: '1px solid var(--border)',
           borderBottom: '1px solid var(--border)',
-          padding: '80px 24px',
+          padding: isMobile ? '48px 20px' : '80px 24px',
           textAlign: 'center',
         }}>
           <h2 style={{
-            fontFamily: 'Syne, sans-serif', fontSize: '40px',
+            fontFamily: 'Syne, sans-serif',
+            fontSize: isMobile ? '28px' : '40px',
             fontWeight: 700, color: 'var(--text)',
             margin: '0 auto 16px',
           }}>
@@ -552,11 +669,21 @@ const Landing = () => {
           }}>
             Join farmers using AI to save their harvests
           </p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '16px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: isMobile ? '100%' : 'auto',
+            maxWidth: isMobile ? '360px' : 'none',
+            margin: isMobile ? '0 auto' : '0',
+          }}>
             <button
               onClick={() => navigate('/register')}
               style={{
                 height: '52px', padding: '0 32px',
+                width: isMobile ? '100%' : 'auto',
                 background: 'var(--primary)', color: '#0a0f0a',
                 border: 'none', borderRadius: '10px',
                 fontFamily: 'Syne, sans-serif', fontSize: '16px', fontWeight: 700,
@@ -571,6 +698,7 @@ const Landing = () => {
               onClick={() => navigate('/login')}
               style={{
                 height: '52px', padding: '0 32px',
+                width: isMobile ? '100%' : 'auto',
                 background: 'transparent',
                 border: '1px solid var(--border)',
                 borderRadius: '10px', color: 'var(--text)',
@@ -589,16 +717,20 @@ const Landing = () => {
         <footer style={{
           background: 'var(--surface)',
           borderTop: '1px solid var(--border)',
-          padding: '40px 24px',
+          padding: isMobile ? '32px 20px' : '40px 24px',
         }}>
           <div style={{
             maxWidth: '1100px', margin: '0 auto',
-            display: 'flex', justifyContent: 'space-between',
-            alignItems: 'center', flexWrap: 'wrap', gap: '20px',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            justifyContent: isMobile ? 'center' : 'space-between',
+            alignItems: 'center',
+            textAlign: isMobile ? 'center' : 'left',
+            gap: '20px',
           }}>
             {/* Left */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: isMobile ? 'center' : 'flex-start' }}>
                 <img src={logo} alt="AgriXel" style={{ height: '28px', width: 'auto' }} />
                 <span style={{ fontFamily: 'Syne, sans-serif', fontSize: '18px', fontWeight: 700, color: 'var(--text)' }}>
                   AgriXel
@@ -610,7 +742,7 @@ const Landing = () => {
             </div>
 
             {/* Center links */}
-            <div style={{ display: 'flex', gap: '24px' }}>
+            <div style={{ display: 'flex', gap: '24px', justifyContent: isMobile ? 'center' : 'flex-start' }}>
               {['Privacy', 'Terms', 'Contact'].map(link => (
                 <span
                   key={link}

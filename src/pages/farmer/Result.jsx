@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, Info } from 'lucide-react'
 import PlantImage from '../../components/ui/PlantImage'
 import StarRating from '../../components/ui/StarRating'
 import client from '../../api/client'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { getHealthScore, getScoreColor } from '../../utils/healthScore'
 
 const URGENCY_COLOR = {
@@ -55,6 +56,7 @@ const Pill = ({ children, color, bg }) => (
 const Result = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { isMobile } = useBreakpoint()
   const result = location.state?.result || location.state
 
   console.log('Result data:', location.state)
@@ -256,13 +258,45 @@ const Result = () => {
             height: '3px',
             background: urgencyColor,
           }} />
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', position: 'relative' }}>
-            {/* Image */}
-            <PlantImage filename={image_filename} width={100} height={100} borderRadius="10px" />
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start', position: 'relative', flexDirection: isMobile ? 'column' : 'row' }}>
+            {/* Image + score row on mobile */}
+            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+              <PlantImage filename={image_filename} width={isMobile ? 80 : 100} height={isMobile ? 80 : 100} borderRadius="10px" />
+              {/* Health score ring — inline on mobile */}
+              {isMobile && (() => {
+                const r = 30
+                const cx = 36
+                const cy = 36
+                const circ = 2 * Math.PI * r
+                const pct = displayScore != null ? displayScore / 100 : 0
+                return (
+                  <svg width="72" height="72" viewBox="0 0 72 72">
+                    <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth="4" />
+                    <circle
+                      cx={cx} cy={cy} r={r} fill="none"
+                      stroke={scoreColor} strokeWidth="4"
+                      strokeDasharray={circ}
+                      strokeDashoffset={circ * (1 - pct)}
+                      strokeLinecap="round"
+                      transform={`rotate(-90 ${cx} ${cy})`}
+                      style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                    />
+                    <text x={cx} y={cy - 3} textAnchor="middle" fill={scoreColor}
+                      style={{ fontFamily: 'Syne, sans-serif', fontSize: '16px', fontWeight: 700 }}>
+                      {displayScore ?? '—'}
+                    </text>
+                    <text x={cx} y={cy + 11} textAnchor="middle" fill="var(--muted)"
+                      style={{ fontFamily: 'Inter, sans-serif', fontSize: '9px' }}>
+                      score
+                    </text>
+                  </svg>
+                )
+              })()}
+            </div>
 
             {/* Info */}
-            <div style={{ flex: 1, minWidth: 0, paddingRight: '96px' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '22px', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>
+            <div style={{ flex: 1, minWidth: 0, paddingRight: isMobile ? '0' : '96px' }}>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: isMobile ? '20px' : '22px', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>
                 {displayCrop || 'Unknown Crop'}
               </div>
               <div style={{ fontSize: '16px', color: 'var(--text)', marginTop: '4px', fontFamily: 'Inter, sans-serif' }}>
@@ -299,38 +333,40 @@ const Result = () => {
               </div>
             </div>
 
-            {/* Health score ring */}
-            <div style={{ position: 'absolute', top: 0, right: 0 }}>
-              {(() => {
-                const r = 34
-                const cx = 40
-                const cy = 40
-                const circ = 2 * Math.PI * r
-                const pct = displayScore != null ? displayScore / 100 : 0
-                return (
-                  <svg width="80" height="80" viewBox="0 0 80 80">
-                    <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth="4" />
-                    <circle
-                      cx={cx} cy={cy} r={r} fill="none"
-                      stroke={scoreColor} strokeWidth="4"
-                      strokeDasharray={circ}
-                      strokeDashoffset={circ * (1 - pct)}
-                      strokeLinecap="round"
-                      transform={`rotate(-90 ${cx} ${cy})`}
-                      style={{ transition: 'stroke-dashoffset 0.6s ease' }}
-                    />
-                    <text x={cx} y={cy - 4} textAnchor="middle" fill={scoreColor}
-                      style={{ fontFamily: 'Syne, sans-serif', fontSize: '18px', fontWeight: 700 }}>
-                      {displayScore ?? '—'}
-                    </text>
-                    <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--muted)"
-                      style={{ fontFamily: 'Inter, sans-serif', fontSize: '9px' }}>
-                      score
-                    </text>
-                  </svg>
-                )
-              })()}
-            </div>
+            {/* Health score ring — absolute on desktop */}
+            {!isMobile && (
+              <div style={{ position: 'absolute', top: 0, right: 0 }}>
+                {(() => {
+                  const r = 34
+                  const cx = 40
+                  const cy = 40
+                  const circ = 2 * Math.PI * r
+                  const pct = displayScore != null ? displayScore / 100 : 0
+                  return (
+                    <svg width="80" height="80" viewBox="0 0 80 80">
+                      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--border)" strokeWidth="4" />
+                      <circle
+                        cx={cx} cy={cy} r={r} fill="none"
+                        stroke={scoreColor} strokeWidth="4"
+                        strokeDasharray={circ}
+                        strokeDashoffset={circ * (1 - pct)}
+                        strokeLinecap="round"
+                        transform={`rotate(-90 ${cx} ${cy})`}
+                        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                      />
+                      <text x={cx} y={cy - 4} textAnchor="middle" fill={scoreColor}
+                        style={{ fontFamily: 'Syne, sans-serif', fontSize: '18px', fontWeight: 700 }}>
+                        {displayScore ?? '—'}
+                      </text>
+                      <text x={cx} y={cy + 12} textAnchor="middle" fill="var(--muted)"
+                        style={{ fontFamily: 'Inter, sans-serif', fontSize: '9px' }}>
+                        score
+                      </text>
+                    </svg>
+                  )
+                })()}
+              </div>
+            )}
           </div>
         </div>
 
@@ -844,7 +880,7 @@ const Result = () => {
         </div>
 
         {/* ── Action Buttons ── */}
-        <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px', marginTop: '8px' }}>
           <button
             onClick={() => navigate('/farmer/diagnose')}
             className="action-btn"

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Camera, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import client from '../../api/client'
 import PlantImage from '../../components/ui/PlantImage'
 import { getDisplayNames, getHealthScore, getScoreColor } from '../../utils/healthScore'
@@ -100,6 +101,7 @@ const formatDate = (ts) => {
 const History = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { isMobile, width } = useBreakpoint()
   const [scans, setScans] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -272,8 +274,8 @@ const History = () => {
           </div>
 
           {/* Filter bar + sort */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '6px', overflowX: isMobile ? 'auto' : 'visible', paddingBottom: isMobile ? '4px' : '0', flexShrink: 0 }}>
               {[
                 { key: 'all',       label: 'All' },
                 { key: 'healthy',   label: 'Healthy' },
@@ -347,7 +349,7 @@ const History = () => {
                   display: 'flex',
                   gap: '16px',
                   alignItems: 'center',
-                  padding: '16px',
+                  padding: isMobile ? '12px' : '16px',
                   paddingRight: '56px',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
@@ -379,7 +381,7 @@ const History = () => {
                 </button>
 
                 {/* Thumbnail */}
-                <PlantImage filename={scan.image_filename} width={64} height={64} borderRadius="8px" />
+                <PlantImage filename={scan.image_filename} width={isMobile ? 52 : 64} height={isMobile ? 52 : 64} borderRadius="8px" />
 
                 {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -441,7 +443,7 @@ const History = () => {
                         {LANG_SHORT[scan.language] || scan.language}
                       </span>
                     )}
-                    {scan.confidence != null && (
+                    {scan.confidence != null && width >= 380 && (
                       <span style={{ fontSize: 10, color: 'var(--muted-2)', fontFamily: 'Inter, sans-serif' }}>
                         {Math.round(scan.confidence)}% conf
                       </span>
@@ -453,7 +455,7 @@ const History = () => {
                 <div style={{ textAlign: 'center', flexShrink: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '2px' }}>
                     <span style={{
-                      fontFamily: 'Syne, sans-serif', fontSize: '24px',
+                      fontFamily: 'Syne, sans-serif', fontSize: isMobile ? '22px' : '24px',
                       fontWeight: 700, color: scoreColor, lineHeight: 1,
                     }}>
                       {displayScore ?? '—'}

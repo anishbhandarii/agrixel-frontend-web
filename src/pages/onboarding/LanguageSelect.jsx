@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import i18n from '../../i18n/index'
 import client from '../../api/client'
+import { useBreakpoint } from '../../hooks/useBreakpoint'
 import { ThemeToggle } from '../../components/ui/ThemeToggle'
 import logo from '../../assets/logo.png'
 
@@ -17,6 +18,7 @@ const LANGUAGES = [
 
 const LanguageSelect = () => {
   const navigate = useNavigate()
+  const { isMobile } = useBreakpoint()
   const [selected, setSelected] = useState(
     localStorage.getItem('agrixel_language') || 'english'
   )
@@ -72,7 +74,7 @@ const LanguageSelect = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
+        padding: isMobile ? '40px 20px' : '60px 24px',
       }}>
         {/* Content card */}
         <div style={{
@@ -132,7 +134,7 @@ const LanguageSelect = () => {
                   className="lang-btn"
                   onClick={() => handleSelect(lang.code)}
                   style={{
-                    height: '56px',
+                    height: isMobile ? '52px' : '56px',
                     background: isSelected ? 'var(--primary-dim)' : 'var(--surface)',
                     border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border)',
                     borderRadius: '10px',
@@ -151,7 +153,7 @@ const LanguageSelect = () => {
                 >
                   <span style={{ fontSize: '22px', lineHeight: 1 }}>{lang.flag}</span>
                   <span style={{
-                    fontSize: '15px',
+                    fontSize: isMobile ? '14px' : '15px',
                     fontFamily: 'Inter, sans-serif',
                     color: isSelected ? 'var(--primary)' : 'var(--text)',
                     transition: 'color 0.15s ease',
