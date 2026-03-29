@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const client = axios.create({
-  baseURL: 'http://64.23.162.250',
+  baseURL: 'https://api.anisbhandari.com.np',
   timeout: 30000,
 })
 
