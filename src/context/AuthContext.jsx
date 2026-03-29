@@ -54,12 +54,11 @@ export const AuthProvider = ({ children }) => {
   }, [])
 
   // Backend register returns { message, email } only — no auto-login
-  const register = useCallback(async (email, password, fullName, role, preferredLanguage, region) => {
+  const register = useCallback(async (email, password, fullName, preferredLanguage, region) => {
     const res = await client.post('/auth/register', {
       email,
       password,
       full_name: fullName,
-      role,
       preferred_language: preferredLanguage,
       region: region || null,
     })

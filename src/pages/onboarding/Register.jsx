@@ -24,7 +24,6 @@ const Register = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [role, setRole] = useState('farmer')
   const [language, setLanguage] = useState(localStorage.getItem('agrixel_language') || 'english')
   const [region, setRegion] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -90,8 +89,7 @@ const Register = () => {
 
     setLoading(true)
     try {
-      await register(email.trim(), password, fullName.trim(), role, language, region.trim() || undefined)
-      // Navigate to login after successful registration
+      await register(email.trim(), password, fullName.trim(), language, region.trim() || undefined)
       navigate('/login')
     } catch (err) {
       const msg = err?.response?.data?.detail || 'Registration failed. Please try again.'
@@ -278,58 +276,6 @@ const Register = () => {
                   </button>
                 </div>
                 {fieldErrors.confirmPassword && <div style={fieldErrorStyle}>{fieldErrors.confirmPassword}</div>}
-              </div>
-
-              {/* Role Selection */}
-              <div style={{ marginBottom: '16px' }}>
-                <label style={labelStyle}>{t('i_am_a')}</label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {[
-                    { value: 'farmer', icon: '👨‍🌾', label: t('farmer'), sub: t('i_grow_crops') },
-                    { value: 'admin',  icon: '🏛️',  label: t('admin'),  sub: t('i_manage_programs') },
-                  ].map(opt => {
-                    const sel = role === opt.value
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setRole(opt.value)}
-                        style={{
-                          flex: 1,
-                          height: '80px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px',
-                          background: sel ? 'var(--primary-dim)' : 'var(--bg)',
-                          border: `1px solid ${sel ? 'var(--primary)' : 'var(--border)'}`,
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease',
-                        }}
-                      >
-                        <span style={{ fontSize: '24px', lineHeight: 1 }}>{opt.icon}</span>
-                        <span style={{
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          color: sel ? 'var(--primary)' : 'var(--text)',
-                          fontFamily: 'Inter, sans-serif',
-                          transition: 'color 0.15s ease',
-                        }}>
-                          {opt.label}
-                        </span>
-                        <span style={{
-                          fontSize: '11px',
-                          color: 'var(--muted)',
-                          fontFamily: 'Inter, sans-serif',
-                        }}>
-                          {opt.sub}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
               </div>
 
               {/* Preferred Language */}
