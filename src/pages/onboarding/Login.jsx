@@ -31,7 +31,7 @@ const Login = () => {
     setLoading(true)
     try {
       const user = await login(email.trim(), password)
-      navigate(user.role === 'admin' ? '/admin/overview' : '/farmer/diagnose', { replace: true })
+      navigate(user.role === 'admin' ? '/admin/overview' : '/farmer/home', { replace: true })
     } catch (err) {
       const msg = err?.response?.data?.detail || 'Invalid email or password.'
       setError(typeof msg === 'string' ? msg : 'Invalid email or password.')
